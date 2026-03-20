@@ -1,0 +1,4 @@
+define KFEATURE_DESCRIPTION "Enable IMA/EVM"
+define KFEATURE_COMPATIBILITY board
+
+kconf non-hardware ima.cfg

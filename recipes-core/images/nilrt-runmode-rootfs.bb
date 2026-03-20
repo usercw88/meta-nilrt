@@ -31,6 +31,14 @@ PACKAGE_EXCLUDE += "rauc rauc-mark-good"
 CUSTOM_KERNEL_PATH:x64 ?= "/boot/tmp/runmode"
 
 bootimg_fixup_x64() {
+	# Use signed kernel if UEFI Secure Boot is enabled
+	if [ "${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'true', 'false', d)}" = "true" ]; then
+		if [ -e "${DEPLOY_DIR_IMAGE}/bzImage.signed" ]; then
+			bbnote "Using UEFI Secure Boot signed kernel: ${DEPLOY_DIR_IMAGE}/bzImage.signed"
+			install -m 0644 "${DEPLOY_DIR_IMAGE}/bzImage.signed" "${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage"
+		fi
+	fi
+
 	install -m 0644 "${THISDIR}/files/bootimage.ini" "${IMAGE_ROOTFS}/boot/runmode/bootimage.ini"
 	sed -i "s/%component_version%/${BUILDNAME}/" "${IMAGE_ROOTFS}/boot/runmode/bootimage.ini"
 
@@ -47,3 +55,6 @@ IMAGE_PREPROCESS_COMMAND:append:x64 = " bootimg_fixup_x64; "
 IMAGE_PREPROCESS_COMMAND:append:xilinx-zynq = " bootimg_fixup_arm; "
 
 IMAGE_FSTYPES += "squashfs ${NILRT_BSI_FSTYPE}"
+
+# Enable IMA/EVM signing for secure boot
+IMAGE_CLASSES += "${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'ima-evm-rootfs', '', d)}"

@@ -8,6 +8,9 @@ GRUB_BUILDIN += "smbios chain multiboot efi_uga font gfxterm gfxmenu terminal \
 # Downstream NI-branch code quality is not yet ready to build with -Werror
 CFLAGS:append = " -Wno-error"
 
+# Enable GRUB signing for UEFI Secure Boot
+inherit ${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'grub-uefi-sign', '', d)}
+
 PACKAGES:prepend = "${PN}-nilrt "
 
 do_install:append:class-target() {

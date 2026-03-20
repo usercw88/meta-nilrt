@@ -22,3 +22,6 @@ require includes/nilrt-image-base.inc
 require includes/nilrt-initramfs.inc
 
 IMAGE_FSTYPES += "squashfs"
+
+# Enable IMA/EVM signing for secure boot
+IMAGE_CLASSES += "${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'ima-evm-rootfs', '', d)}"

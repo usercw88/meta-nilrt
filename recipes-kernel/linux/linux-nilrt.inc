@@ -1,6 +1,9 @@
 inherit kernel
 require recipes-kernel/linux/linux-yocto.inc
 
+# Enable UEFI Secure Boot kernel signing when configured
+inherit ${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'kernel-uefi-sign', '', d)}
+
 KBRANCH = "nilrt/${NI_RELEASE_VERSION}/${LINUX_VERSION}"
 GIT_KERNEL_REPO = "linux.git"
 

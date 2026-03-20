@@ -27,6 +27,19 @@ RAMDISK_IMAGE = "nilrt-safemode-initramfs"
 do_rootfs[depends] += "${RAMDISK_IMAGE}:do_image_complete"
 
 bootimg_fixup() {
+	# Use signed kernel if UEFI Secure Boot is enabled
+	if [ "${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'true', 'false', d)}" = "true" ]; then
+		if [ -e "${DEPLOY_DIR_IMAGE}/bzImage.signed" ]; then
+			bbnote "Using UEFI Secure Boot signed kernel: ${DEPLOY_DIR_IMAGE}/bzImage.signed"
+			KERNEL_SOURCE="${DEPLOY_DIR_IMAGE}/bzImage.signed"
+		else
+			bbwarn "UEFI Secure Boot enabled but no signed kernel found, using unsigned kernel"
+			KERNEL_SOURCE="$(realpath ${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage)"
+		fi
+	else
+		KERNEL_SOURCE="$(realpath ${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage)"
+	fi
+
 	install -m 0644 "${DEPLOY_DIR_IMAGE}/${RAMDISK_IMAGE}-${MACHINE}.cpio.xz" "${IMAGE_ROOTFS}/boot/ramdisk.xz"
 
 	install -m 0755 "${THISDIR}/files/${BPN}.preinst" "${IMAGE_ROOTFS}/boot/preinst"
@@ -42,10 +55,9 @@ bootimg_fixup() {
 
 	# The kernel was installed with a symbolic link from 'bzImage'
 	# to the actual versioned file. Remove the redirection so that
-	# we just have a 'bzImage'
-	mv "$(realpath ${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage)" "${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage.real"
+	# we just have a 'bzImage'. Use signed kernel if available.
 	rm -f "${IMAGE_ROOTFS}/boot/bzImage"
-	mv "${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}/bzImage.real" "${IMAGE_ROOTFS}/boot/bzImage"
+	install -m 0644 "${KERNEL_SOURCE}" "${IMAGE_ROOTFS}/boot/bzImage"
 	rm -rf "${IMAGE_ROOTFS}/${KERNEL_IMAGEDEST}"
 
 	install -m 0644 "${THISDIR}/files/bootimage.ini" "${IMAGE_ROOTFS}/boot/bootimage.ini"
@@ -88,3 +100,6 @@ ensure_expected_files() {
 IMAGE_PREPROCESS_COMMAND += " bootimg_fixup; ensure_expected_files; "
 
 inherit image
+
+# Enable IMA/EVM signing for secure boot
+IMAGE_CLASSES += "${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'ima-evm-rootfs', '', d)}"

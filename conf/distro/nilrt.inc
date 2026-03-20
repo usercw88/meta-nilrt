@@ -20,6 +20,7 @@ DISTRO_FEATURES += "\
         ptest \
         selinux \
         virtualization \
+        uefi-secure-boot \
 "
 
 # Enable TPM2 features for x64 architectures
@@ -171,3 +172,5 @@ IPK_FEED_URIS += "\
     NIOE-${TUNE_PKGARCH}##${NILRT_LOCAL_FEED_URI}/${TUNE_PKGARCH} \
     NI-main-software##${NILRT_MACHINE_FEED_URI_nimain} \
 "
+
+include ${@bb.utils.contains('DISTRO_FEATURES', 'uefi-secure-boot', 'secureboot.inc', '', d)}
