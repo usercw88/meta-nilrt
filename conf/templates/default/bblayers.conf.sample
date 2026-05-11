@@ -24,6 +24,9 @@ BBLAYERS ?= " \
 	${GIT_REPODIR}/meta-qt5-extra \
 	${GIT_REPODIR}/meta-rauc \
 	${GIT_REPODIR}/meta-sdr \
+	${GIT_REPODIR}/meta-secure-core/meta-efi-secure-boot \
+	${GIT_REPODIR}/meta-secure-core/meta-secure-core-common  \
+	${GIT_REPODIR}/meta-secure-core/meta-signing-key \
 	${GIT_REPODIR}/meta-security \
 	${GIT_REPODIR}/meta-security/meta-tpm \
 	${GIT_REPODIR}/meta-selinux \

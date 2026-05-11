@@ -22,10 +22,29 @@ DISTRO_FEATURES += "\
         virtualization \
 "
 
-# Enable TPM2 features for x64 architectures
+# Enable Security features for x64 architectures
 DISTRO_FEATURES:append:x64 = "\
         tpm2 \
+        efi-secure-boot \
 "
+
+IMAGE_INSTALL:append = "${@bb.utils.contains('DISTRO_FEATURES', 'efi-secure-boot', ' shim', '', d)}"
+
+SIGNING_MODEL = "user"
+KEYS_DIR = "${TOPDIR}/../34FE3A4"
+UEFI_SB_KEYS_DIR = "${KEYS_DIR}/uefi_sb_keys"
+MOK_SB_KEYS_DIR = "${KEYS_DIR}/mok_sb_keys"
+IMA_KEYS_DIR = "${KEYS_DIR}/ima_keys"
+SYSTEM_TRUSTED_KEYS_DIR = "${KEYS_DIR}/system_trusted_keys"
+SECONDARY_TRUSTED_KEYS_DIR = "${KEYS_DIR}/secondary_trusted_keys"
+MODSIGN_KEYS_DIR = "${KEYS_DIR}/modsign_keys"
+RPM_KEYS_DIR = "${KEYS_DIR}/rpm_keys"
+RPM_GPG_NAME = "nilrt"
+BOOT_KEYS_DIR = "${KEYS_DIR}/boot_keys"
+BOOT_GPG_NAME = "nilrt"
+BOOT_GPG_PASSPHRASE = ""
+GRUB_SIGN_VERIFY = "1"
+UEFI_SELOADER = "0"
 
 # Because NIRLT uses opkg so intimately, assert that the rootfs should always
 # be made of IPKs.
