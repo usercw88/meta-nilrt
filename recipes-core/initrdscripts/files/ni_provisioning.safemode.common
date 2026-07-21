@@ -232,9 +232,22 @@ install_grub()
 
 	set_efiboot_entry
 
-	print_info "Installing grub.cfg..."
+	print_info "Installing grub configuration..."
 
-	cp $SOURCE_DIR/grub.cfg $GRUB_TARGET_DIR/grub.cfg
+	for grub_file in grubenv grub-safemode.cfg efi-secure-boot.inc
+	do
+		if [ -f "$SOURCE_DIR/$grub_file" ]; then
+			cp "$SOURCE_DIR/$grub_file" "$GRUB_TARGET_DIR/$grub_file"
+		fi
+
+		for grub_sig_ext in sig p7b
+		do
+			if [ -f "$SOURCE_DIR/$grub_file.$grub_sig_ext" ]; then
+				cp "$SOURCE_DIR/$grub_file.$grub_sig_ext" "$GRUB_TARGET_DIR/$grub_file.$grub_sig_ext"
+			fi
+		done
+	done
+
 	mkdir -p $GRUB_TARGET_DIR/fonts
 	cp $SOURCE_DIR/fonts/unicode.pf2 $GRUB_TARGET_DIR/fonts/
 	print_done

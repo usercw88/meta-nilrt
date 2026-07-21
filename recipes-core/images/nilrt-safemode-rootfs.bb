@@ -70,7 +70,7 @@ EXPECTED_CONTENTS = "\
 	bzImage \
 	ramdisk.gz \
 	ramdisk.xz \
-	grub.cfg \
+	grub-safemode.cfg \
 	grubenv \
 	EFI_NI_vars \
 	SMBIOS_NI_vars \

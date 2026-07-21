@@ -45,7 +45,7 @@ do_install:append:x64() {
 	install -m 0644 ${WORKDIR}/ni_provisioning.safemode.common ${D}/
 	install -m 0644 ${WORKDIR}/ni_provisioning.safemode ${D}/
 	install -m 0755 ${WORKDIR}/disk_config_x64 ${D}/disk_config
-	install -m 0644 ${WORKDIR}/grub.cfg ${D}/
+	install -m 0644 ${WORKDIR}/grub.cfg ${D}/grub-safemode.cfg
 }
 
 do_install:append:xilinx-zynqhf() {
@@ -55,4 +55,4 @@ do_install:append:xilinx-zynqhf() {
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 FILES:${PN} += " /init /ni_provisioning* /disk_config /etc/profile.d/00-init-restore-mode.sh"
-FILES:${PN}:append:x64 = " /grub.cfg "
+FILES:${PN}:append:x64 = " /grub-safemode.cfg "

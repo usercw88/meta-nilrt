@@ -67,12 +67,12 @@ TARGET_OTHER=$(lsblk -lnpo NAME,LABEL |grep "nibootfs" |cut -d" " -f 1)
 [ ! -e "$TARGET_EFI" ] && die "Unable to locate efi partition."
 [ ! -e "$TARGET_OTHER" ] && die "Unable to locate secondary partition."
 
-# Verify the grub.cfg file looks like what this script expects before
+# Verify the grub-safemode.cfg file looks like what this script expects before
 # destructively modifying the partitions.
 readonly GRUB_MOUNT=$(mktemp -d "/var/volatile/grub-XXXXXXX")
 mount -r "$efipart" "$GRUB_MOUNT"
-grep -q "restore=provision-safe" "$GRUB_MOUNT/EFI/BOOT/grub.cfg" || \
-    grep -q "restore=provision" "$GRUB_MOUNT/EFI/BOOT/grub.cfg" || \
+grep -q "restore=provision-safe" "$GRUB_MOUNT/EFI/BOOT/grub-safemode.cfg" || \
+    grep -q "restore=provision" "$GRUB_MOUNT/EFI/BOOT/grub-safemode.cfg" || \
     die "Unable to set auto provisioning mode"
 
 if [ "$TARGET_EFI" == "/dev/niboot/niboot.current" ] ; then
@@ -94,10 +94,10 @@ info "Rewriting EFI partition"
 find "$EFI_MOUNT" -mindepth 1 -maxdepth 1 -exec rm -fr {} \;
 cp -R "$GRUB_MOUNT"/* "$EFI_MOUNT"
 
-# Modify grub.cfg to signify that this is an onboard provisioning operation
+# Modify grub-safemode.cfg to signify that this is an onboard provisioning operation
 info "Preparing EFI partition for automatic provisioning"
-sed "s/restore=provision-safe/restore=backward-migrate/" -i "$EFI_MOUNT/EFI/BOOT/grub.cfg"
-sed "s/restore=provision/restore=migrate/" -i "$EFI_MOUNT/EFI/BOOT/grub.cfg"
+sed "s/restore=provision-safe/restore=backward-migrate/" -i "$EFI_MOUNT/EFI/BOOT/grub-safemode.cfg"
+sed "s/restore=provision/restore=migrate/" -i "$EFI_MOUNT/EFI/BOOT/grub-safemode.cfg"
 
 # copy payload/ISO contents to other partition
 info "Rewriting secondary partition"
